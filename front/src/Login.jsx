@@ -24,7 +24,7 @@ const Login = () => {
 
     try {
         const response = await axios.post(
-            'https://authfullstack.vercel.app/login',
+            'https://back-swart-kappa.vercel.app/login',
             { username, password, captchaValue },
             { withCredentials: true }
         );

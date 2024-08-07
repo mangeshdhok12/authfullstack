@@ -1,53 +1,54 @@
-import express from "express"
-import cors from "cors"
-import mongoose from "mongoose";
-import bcrypt from "bcrypt"
-import UserModel from "./models/UserModel.js";
-import jwt from "jsonwebtoken";
-import cookieParser from "cookie-parser";
-import axios from "axios"
+import express from 'express';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
+import UserModel from './models/UserModel.js';
+import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
+import axios from 'axios';
+import dotenv from 'dotenv';
 
+dotenv.config(); // Load environment variables from .env file
 
-const port= process.env.PORT || 3001;
-const app= express()
+const app = express();
+const port = process.env.PORT || 3001;
 
 app.use(cors({
-    origin: "https://authfullstack-front.vercel.app/register", 
-    methods: ["GET", "POST"],
-    credentials: true 
+    origin: process.env.CLIENT_ORIGIN, 
+    methods: ["GET", "POST", "OPTIONS"],
+    credentials: true
 }));
-app.use(cookieParser())
+app.use(cookieParser());
+app.use(express.json());
 
-app.use(express.json())
-
-
-
-const connect=async()=>{
+const connect = async () => {
     try {
-        await mongoose.connect("mongodb+srv://dhokmangesh678:mangesh123@authcluster.b6rng.mongodb.net/authdb?retryWrites=true&w=majority&appName=authcluster")
-        console.log("connected to server")
+        await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        console.log("Connected to MongoDB");
     } catch (error) {
-        console.log(error);
+        console.error("Error connecting to MongoDB:", error);
     }
-} 
+};
 
-app.post('/register', (req, res)=>{
-    const {name, username, password}= req.body;
-    bcrypt.hash(password, 10).then(hash=>{
-        UserModel.create({name, username, password:hash})
-        .then(user=>res.json(user))
-        .catch(err=>res.json(err))
-    }).catch(err=>console.log(err))
-  
-})
+app.post('/register', async (req, res) => {
+    const { name, username, password } = req.body;
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = await UserModel.create({ name, username, password: hashedPassword });
+        res.status(201).json(user);
+    } catch (err) {
+        console.error("Error during registration:", err);
+        res.status(500).json({ error: 'Error during registration' });
+    }
+});
+
 app.post('/login', async (req, res) => {
     const { username, password, captchaValue } = req.body;
-
     try {
         // Verify CAPTCHA
         const captchaResponse = await axios.post('https://www.google.com/recaptcha/api/siteverify', null, {
             params: {
-                secret:'6LfDUyEqAAAAAKjnPNdcyvHh4KGiUz4UyQ3kfq5X', 
+                secret: process.env.RECAPTCHA_SECRET_KEY,
                 response: captchaValue
             }
         });
@@ -65,12 +66,12 @@ app.post('/login', async (req, res) => {
             const isMatch = await bcrypt.compare(password, user.password);
 
             if (isMatch) {
-                const token = jwt.sign({ username: user.username, userId: user._id }, "JWT_SECRET_KEY", { expiresIn: '1d' });
+                const token = jwt.sign({ username: user.username, userId: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
                 res.cookie('token', token, {
                     httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-                    sameSite: 'None', // Required for cross-origin cookies
-                    maxAge: 24 * 60 * 60 * 1000 // 1 day
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'None',
+                    maxAge: 24 * 60 * 60 * 1000
                 });
                 return res.json('success');
             } else {
@@ -80,18 +81,17 @@ app.post('/login', async (req, res) => {
             return res.status(404).json("User does not exist");
         }
     } catch (error) {
-        console.error(error);
+        console.error("Error during login:", error);
         res.status(500).json("Server error");
     }
 });
 
 app.get('/logout', (req, res) => {
-    res.clearCookie('token')
-    return res.json('Success')
-})
+    res.clearCookie('token');
+    return res.json('Success');
+});
 
-app.listen(port, ()=>{
-    connect()
-    console.log("Server is Running ", port);
-
-})
+app.listen(port, () => {
+    connect();
+    console.log(`Server is running on port ${port}`);
+});
