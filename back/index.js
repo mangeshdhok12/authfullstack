@@ -12,7 +12,7 @@ const port= process.env.PORT || 3001;
 const app= express()
 
 app.use(cors({
-    origin: "https://authfullstack-front.vercel.app", 
+    origin: "https://authfullstack-front.vercel.app/register", 
     methods: ["GET", "POST"],
     credentials: true 
 }));
@@ -65,7 +65,7 @@ app.post('/login', async (req, res) => {
             const isMatch = await bcrypt.compare(password, user.password);
 
             if (isMatch) {
-                const token = jwt.sign({ username: user.username, userId: user._id }, jwt-secret-key, { expiresIn: '1d' });
+                const token = jwt.sign({ username: user.username, userId: user._id }, "JWT_SECRET_KEY", { expiresIn: '1d' });
                 res.cookie('token', token, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
