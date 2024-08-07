@@ -4,6 +4,7 @@ import Register from './Register'
 import Home from './Home'
 import Login from './Login'
 import Navbar from './Navbar'
+import axios from 'axios'
 
 const App = () => {
   axios.defaults.withCredintials=true
