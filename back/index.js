@@ -11,12 +11,11 @@ import axios from "axios"
 const port= process.env.PORT || 3001;
 const app= express()
 
-
 app.use(cors({
-    origin:["https://authfullstack-front.vercel.app"],
-    methods:[ "POST"],
-    credentials:true
-}))
+    origin: "https://authfullstack-front.vercel.app", 
+    methods: ["GET", "POST"],
+    credentials: true 
+}));
 app.use(cookieParser())
 
 app.use(express.json())
