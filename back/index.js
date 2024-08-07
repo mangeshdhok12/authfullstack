@@ -24,7 +24,7 @@ app.use(express.json())
 
 const connect=async()=>{
     try {
-        await mongoose.connect(process.env.MONGODB_URI)
+        await mongoose.connect("mongodb+srv://dhokmangesh678:mangesh123@authcluster.b6rng.mongodb.net/authdb?retryWrites=true&w=majority&appName=authcluster")
         console.log("connected to server")
     } catch (error) {
         console.log(error);
@@ -47,7 +47,7 @@ app.post('/login', async (req, res) => {
         // Verify CAPTCHA
         const captchaResponse = await axios.post('https://www.google.com/recaptcha/api/siteverify', null, {
             params: {
-                secret: process.env.RECAPTCHA_SECRET_KEY, 
+                secret:'6LfDUyEqAAAAAKjnPNdcyvHh4KGiUz4UyQ3kfq5X', 
                 response: captchaValue
             }
         });
@@ -65,7 +65,7 @@ app.post('/login', async (req, res) => {
             const isMatch = await bcrypt.compare(password, user.password);
 
             if (isMatch) {
-                const token = jwt.sign({ username: user.username, userId: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
+                const token = jwt.sign({ username: user.username, userId: user._id }, jwt-secret-key, { expiresIn: '1d' });
                 res.cookie('token', token, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
