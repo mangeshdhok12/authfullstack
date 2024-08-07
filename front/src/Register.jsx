@@ -22,7 +22,7 @@ const Register = () => {
       setError('Password must contain at least one uppercase letter, one lowercase letter, one number, one special character, and be at least 7 characters long.');
       return;
     }
-    axios.post('http://localhost:3001/register',{
+    axios.post('https://authfullstack.vercel.app/register',{
       name, username, password
     }).then(res=>navigate('/login'))
     .catch(err=> console.log(err))
