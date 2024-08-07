@@ -24,7 +24,7 @@ const Login = () => {
 
     try {
         const response = await axios.post(
-            'https://back-swart-kappa.vercel.app/login',
+            'http://localhost:3001/login',
             { username, password, captchaValue },
             { withCredentials: true }
         );
