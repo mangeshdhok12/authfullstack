@@ -14,7 +14,7 @@ const app= express()
 
 app.use(cors({
     origin:["https://authfullstack-front.vercel.app"],
-    methods:["GET", "POST"],
+    methods:[ "POST"],
     credentials:true
 }))
 app.use(cookieParser())

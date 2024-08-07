@@ -6,6 +6,7 @@ import Login from './Login'
 import Navbar from './Navbar'
 
 const App = () => {
+  axios.defaults.withCredintials=true
   return (
    <BrowserRouter
    >
